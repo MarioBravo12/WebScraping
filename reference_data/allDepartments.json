@@ -1,0 +1,144 @@
+{
+  "data": {
+    "allDepartments": {
+      "nodes": [
+        {
+          "idDepartmentCode": "01",
+          "departmentName": "ANTIOQUIA"
+        },
+        {
+          "idDepartmentCode": "03",
+          "departmentName": "ATLANTICO"
+        },
+        {
+          "idDepartmentCode": "05",
+          "departmentName": "BOLIVAR"
+        },
+        {
+          "idDepartmentCode": "07",
+          "departmentName": "BOYACA"
+        },
+        {
+          "idDepartmentCode": "09",
+          "departmentName": "CALDAS"
+        },
+        {
+          "idDepartmentCode": "11",
+          "departmentName": "CAUCA"
+        },
+        {
+          "idDepartmentCode": "12",
+          "departmentName": "CESAR"
+        },
+        {
+          "idDepartmentCode": "13",
+          "departmentName": "CORDOBA"
+        },
+        {
+          "idDepartmentCode": "15",
+          "departmentName": "CUNDINAMARCA"
+        },
+        {
+          "idDepartmentCode": "16",
+          "departmentName": "BOGOTA D.C."
+        },
+        {
+          "idDepartmentCode": "17",
+          "departmentName": "CHOCO"
+        },
+        {
+          "idDepartmentCode": "19",
+          "departmentName": "HUILA"
+        },
+        {
+          "idDepartmentCode": "21",
+          "departmentName": "MAGDALENA"
+        },
+        {
+          "idDepartmentCode": "23",
+          "departmentName": "NARIÑO"
+        },
+        {
+          "idDepartmentCode": "24",
+          "departmentName": "RISARALDA"
+        },
+        {
+          "idDepartmentCode": "25",
+          "departmentName": "NORTE DE SAN"
+        },
+        {
+          "idDepartmentCode": "26",
+          "departmentName": "QUINDIO"
+        },
+        {
+          "idDepartmentCode": "27",
+          "departmentName": "SANTANDER"
+        },
+        {
+          "idDepartmentCode": "28",
+          "departmentName": "SUCRE"
+        },
+        {
+          "idDepartmentCode": "29",
+          "departmentName": "TOLIMA"
+        },
+        {
+          "idDepartmentCode": "31",
+          "departmentName": "VALLE"
+        },
+        {
+          "idDepartmentCode": "40",
+          "departmentName": "ARAUCA"
+        },
+        {
+          "idDepartmentCode": "44",
+          "departmentName": "CAQUETA"
+        },
+        {
+          "idDepartmentCode": "46",
+          "departmentName": "CASANARE"
+        },
+        {
+          "idDepartmentCode": "48",
+          "departmentName": "LA GUAJIRA"
+        },
+        {
+          "idDepartmentCode": "50",
+          "departmentName": "GUAINIA"
+        },
+        {
+          "idDepartmentCode": "52",
+          "departmentName": "META"
+        },
+        {
+          "idDepartmentCode": "54",
+          "departmentName": "GUAVIARE"
+        },
+        {
+          "idDepartmentCode": "56",
+          "departmentName": "SAN ANDRES"
+        },
+        {
+          "idDepartmentCode": "60",
+          "departmentName": "AMAZONAS"
+        },
+        {
+          "idDepartmentCode": "64",
+          "departmentName": "PUTUMAYO"
+        },
+        {
+          "idDepartmentCode": "68",
+          "departmentName": "VAUPES"
+        },
+        {
+          "idDepartmentCode": "72",
+          "departmentName": "VICHADA"
+        },
+        {
+          "idDepartmentCode": "88",
+          "departmentName": "CONSULADOS"
+        }
+      ]
+    }
+  }
+}

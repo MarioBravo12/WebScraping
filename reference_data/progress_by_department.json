@@ -1,0 +1,348 @@
+{
+  "data": {
+    "allMviewGetProgressByDepartmentAndCorporations": {
+      "nodes": [
+        {
+          "idDepartmentCode": "60",
+          "name": "AMAZONAS",
+          "expected": 176,
+          "published": 176,
+          "publishedE14": 176,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "01",
+          "name": "ANTIOQUIA",
+          "expected": 15801,
+          "published": 15801,
+          "publishedE14": 15801,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "40",
+          "name": "ARAUCA",
+          "expected": 662,
+          "published": 662,
+          "publishedE14": 662,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "03",
+          "name": "ATLANTICO",
+          "expected": 6190,
+          "published": 6190,
+          "publishedE14": 6190,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "16",
+          "name": "BOGOTA D.C.",
+          "expected": 17164,
+          "published": 17164,
+          "publishedE14": 17164,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "05",
+          "name": "BOLIVAR",
+          "expected": 5355,
+          "published": 5355,
+          "publishedE14": 5355,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "07",
+          "name": "BOYACA",
+          "expected": 3126,
+          "published": 3126,
+          "publishedE14": 3126,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "09",
+          "name": "CALDAS",
+          "expected": 2492,
+          "published": 2492,
+          "publishedE14": 2492,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "44",
+          "name": "CAQUETA",
+          "expected": 983,
+          "published": 983,
+          "publishedE14": 983,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "46",
+          "name": "CASANARE",
+          "expected": 1020,
+          "published": 1020,
+          "publishedE14": 1020,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "11",
+          "name": "CAUCA",
+          "expected": 3427,
+          "published": 3427,
+          "publishedE14": 3427,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "12",
+          "name": "CESAR",
+          "expected": 2754,
+          "published": 2754,
+          "publishedE14": 2754,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "17",
+          "name": "CHOCO",
+          "expected": 1252,
+          "published": 1252,
+          "publishedE14": 1252,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "88",
+          "name": "CONSULADOS",
+          "expected": 3670,
+          "published": 3670,
+          "publishedE14": 1395,
+          "publishedPhoto": 2275,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "13",
+          "name": "CORDOBA",
+          "expected": 4180,
+          "published": 4180,
+          "publishedE14": 4180,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "15",
+          "name": "CUNDINAMARCA",
+          "expected": 6916,
+          "published": 6916,
+          "publishedE14": 6916,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "50",
+          "name": "GUAINIA",
+          "expected": 117,
+          "published": 117,
+          "publishedE14": 117,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "54",
+          "name": "GUAVIARE",
+          "expected": 221,
+          "published": 221,
+          "publishedE14": 221,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "19",
+          "name": "HUILA",
+          "expected": 2746,
+          "published": 2746,
+          "publishedE14": 2746,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "48",
+          "name": "LA GUAJIRA",
+          "expected": 2095,
+          "published": 2095,
+          "publishedE14": 2094,
+          "publishedPhoto": 1,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "21",
+          "name": "MAGDALENA",
+          "expected": 3228,
+          "published": 3228,
+          "publishedE14": 3228,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "52",
+          "name": "META",
+          "expected": 2543,
+          "published": 2543,
+          "publishedE14": 2543,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "23",
+          "name": "NARIÑO",
+          "expected": 3901,
+          "published": 3899,
+          "publishedE14": 3899,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "25",
+          "name": "NORTE DE SAN",
+          "expected": 4079,
+          "published": 4078,
+          "publishedE14": 4078,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "64",
+          "name": "PUTUMAYO",
+          "expected": 809,
+          "published": 809,
+          "publishedE14": 809,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "26",
+          "name": "QUINDIO",
+          "expected": 1471,
+          "published": 1471,
+          "publishedE14": 1471,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "24",
+          "name": "RISARALDA",
+          "expected": 2551,
+          "published": 2551,
+          "publishedE14": 2551,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "56",
+          "name": "SAN ANDRES",
+          "expected": 156,
+          "published": 156,
+          "publishedE14": 156,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "27",
+          "name": "SANTANDER",
+          "expected": 5690,
+          "published": 5690,
+          "publishedE14": 5690,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "28",
+          "name": "SUCRE",
+          "expected": 2347,
+          "published": 2347,
+          "publishedE14": 2347,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "29",
+          "name": "TOLIMA",
+          "expected": 3526,
+          "published": 3525,
+          "publishedE14": 3525,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "31",
+          "name": "VALLE",
+          "expected": 11087,
+          "published": 11087,
+          "publishedE14": 11087,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "68",
+          "name": "VAUPES",
+          "expected": 88,
+          "published": 88,
+          "publishedE14": 88,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        },
+        {
+          "idDepartmentCode": "72",
+          "name": "VICHADA",
+          "expected": 197,
+          "published": 197,
+          "publishedE14": 197,
+          "publishedPhoto": 0,
+          "idCorporationCode": "001",
+          "nameCorporation": "PRESIDENTE"
+        }
+      ]
+    }
+  }
+}

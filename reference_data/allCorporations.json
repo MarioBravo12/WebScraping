@@ -1,0 +1,20 @@
+{
+  "data": {
+    "allCorporations": {
+      "edges": [
+        {
+          "node": {
+            "idCorporationCode": "001",
+            "nameCorporation": "PRESIDENTE",
+            "acronym": "PRE",
+            "level": "NAC",
+            "createdBy": null,
+            "createdDate": "2026-05-23T13:50:40.807Z",
+            "updatedBy": null,
+            "updatedDate": "2026-05-23T13:50:40.807Z"
+          }
+        }
+      ]
+    }
+  }
+}

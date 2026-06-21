@@ -1,0 +1,197 @@
+# Municipios por departamento
+
+Generado con `src/list_municipios.py` a partir de `reference_data/departmentsTree.json`.
+
+
+## ANTIOQUIA (01) — 125 municipios, 15801 mesas
+
+| Código | Municipio | Mesas |
+|---|---|---|
+| 001 | MEDELLIN | 5329 |
+| 004 | ABEJORRAL | 48 |
+| 007 | ABRIAQUI | 7 |
+| 010 | ALEJANDRIA | 14 |
+| 013 | AMAGA | 74 |
+| 016 | AMALFI | 56 |
+| 019 | ANDES | 111 |
+| 022 | ANGELOPOLIS | 19 |
+| 025 | ANGOSTURA | 28 |
+| 028 | ANORI | 43 |
+| 031 | ANTIOQUIA | 75 |
+| 034 | ANZA | 20 |
+| 035 | APARTADO | 323 |
+| 037 | ARBOLETES | 72 |
+| 039 | ARGELIA | 23 |
+| 040 | ARMENIA | 14 |
+| 043 | BARBOSA | 138 |
+| 046 | BELMIRA | 19 |
+| 049 | BELLO | 1043 |
+| 052 | BETANIA | 25 |
+| 055 | BETULIA | 42 |
+| 058 | BOLIVAR | 71 |
+| 061 | BURITICA | 27 |
+| 062 | BRICEÑO | 23 |
+| 064 | CACERES | 64 |
+| 067 | CAICEDO | 21 |
+| 070 | CALDAS | 213 |
+| 073 | CAMPAMENTO | 22 |
+| 076 | CAÑASGORDAS | 43 |
+| 078 | CARACOLI | 16 |
+| 079 | CARAMANTA | 16 |
+| 080 | CAREPA | 149 |
+| 082 | CARMEN DE VIBORAL | 141 |
+| 085 | CAROLINA | 13 |
+| 088 | CAUCASIA | 232 |
+| 091 | CISNEROS | 37 |
+| 094 | COCORNA | 46 |
+| 097 | CONCEPCION | 13 |
+| 100 | CONCORDIA | 49 |
+| 103 | COPACABANA | 227 |
+| 106 | CHIGORODO | 155 |
+| 109 | DABEIBA | 64 |
+| 112 | DON MATIAS | 55 |
+| 115 | EBEJICO | 35 |
+| 117 | EL BAGRE | 124 |
+| 118 | ENTRERRIOS | 28 |
+| 121 | ENVIGADO | 711 |
+| 124 | FREDONIA | 57 |
+| 127 | FRONTINO | 58 |
+| 130 | GIRALDO | 17 |
+| 133 | GIRARDOTA | 165 |
+| 136 | GOMEZ PLATA | 27 |
+| 139 | GRANADA | 30 |
+| 140 | GUADALUPE | 19 |
+| 142 | GUARNE | 135 |
+| 145 | GUATAPE | 24 |
+| 148 | HELICONIA | 19 |
+| 150 | HISPANIA | 16 |
+| 151 | ITAGUI | 737 |
+| 154 | ITUANGO | 59 |
+| 157 | JARDIN | 39 |
+| 160 | JERICO | 34 |
+| 163 | LA CEJA | 181 |
+| 166 | LA ESTRELLA | 197 |
+| 168 | PUERTO NARE-LA MAGDALENA | 38 |
+| 169 | LA UNION | 60 |
+| 170 | LA PINTADA | 22 |
+| 172 | LIBORINA | 30 |
+| 175 | MACEO | 27 |
+| 178 | MARINILLA | 156 |
+| 181 | MONTEBELLO | 20 |
+| 184 | MURINDO | 13 |
+| 187 | MUTATA | 48 |
+| 190 | NARIÑO | 29 |
+| 191 | NECHI | 66 |
+| 192 | NECOCLI | 119 |
+| 193 | OLAYA | 10 |
+| 196 | PEÑOL | 54 |
+| 199 | PEQUE | 22 |
+| 202 | PUEBLORRICO | 21 |
+| 205 | PUERTO BERRIO | 107 |
+| 206 | PUERTO TRIUNFO | 47 |
+| 208 | REMEDIOS | 72 |
+| 211 | RETIRO | 67 |
+| 214 | RIONEGRO | 392 |
+| 217 | SABANALARGA | 24 |
+| 218 | SABANETA | 289 |
+| 220 | SALGAR | 43 |
+| 223 | SAN ANDRES | 21 |
+| 226 | SAN CARLOS | 48 |
+| 227 | SAN FRANCISCO | 19 |
+| 229 | SAN JERONIMO | 42 |
+| 230 | SAN JOSE DE LA MONTAÑA | 10 |
+| 231 | SAN JUAN DE URABA | 64 |
+| 232 | SAN LUIS | 38 |
+| 235 | SAN PEDRO | 71 |
+| 237 | SAN PEDRO DE URABA | 90 |
+| 238 | SAN RAFAEL | 41 |
+| 241 | SAN ROQUE | 50 |
+| 244 | SAN VICENTE | 54 |
+| 247 | SANTA BARBARA | 69 |
+| 250 | SANTA ROSA DE OSOS | 91 |
+| 253 | SANTO DOMINGO | 32 |
+| 256 | SANTUARIO | 91 |
+| 259 | SEGOVIA | 99 |
+| 262 | SONSON | 95 |
+| 265 | SOPETRAN | 43 |
+| 268 | TAMESIS | 45 |
+| 270 | TARAZA | 75 |
+| 271 | TARSO | 18 |
+| 274 | TITIRIBI | 27 |
+| 277 | TOLEDO | 14 |
+| 280 | TURBO | 299 |
+| 282 | URAMITA | 21 |
+| 283 | URRAO | 78 |
+| 286 | VALDIVIA | 37 |
+| 289 | VALPARAISO | 17 |
+| 290 | VEGACHI | 37 |
+| 291 | VIGIA DEL FUERTE | 25 |
+| 292 | VENECIA | 35 |
+| 293 | YALI | 20 |
+| 295 | YARUMAL | 108 |
+| 298 | YOLOMBO | 53 |
+| 300 | YONDO-CASABE | 50 |
+| 301 | ZARAGOZA | 66 |
+
+## ATLANTICO (03) — 23 municipios, 6190 mesas
+
+| Código | Municipio | Mesas |
+|---|---|---|
+| 001 | BARRANQUILLA | 3434 |
+| 004 | BARANOA | 158 |
+| 007 | CAMPO DE LA CRUZ | 70 |
+| 010 | CANDELARIA | 44 |
+| 013 | GALAPA | 134 |
+| 016 | JUAN DE ACOSTA | 58 |
+| 019 | LURUACO | 77 |
+| 022 | MALAMBO | 274 |
+| 025 | MANATI | 49 |
+| 028 | PALMAR DE VARELA | 68 |
+| 031 | PIOJO | 19 |
+| 034 | POLONUEVO | 44 |
+| 035 | PONEDERA | 63 |
+| 037 | PUERTO COLOMBIA | 117 |
+| 040 | REPELON | 67 |
+| 043 | SABANAGRANDE | 77 |
+| 046 | SABANALARGA | 224 |
+| 047 | SANTA LUCIA | 39 |
+| 049 | SANTO TOMAS | 80 |
+| 052 | SOLEDAD | 1000 |
+| 055 | SUAN | 34 |
+| 058 | TUBARA | 34 |
+| 061 | USIACURI | 26 |
+
+## MAGDALENA (21) — 30 municipios, 3228 mesas
+
+| Código | Municipio | Mesas |
+|---|---|---|
+| 001 | SANTA MARTA | 1176 |
+| 008 | ALGARROBO | 35 |
+| 010 | ARACATACA | 93 |
+| 012 | ARIGUANI (EL DIFICIL) | 73 |
+| 013 | CERRO DE SAN ANTONIO | 28 |
+| 015 | CHIVOLO | 47 |
+| 016 | CIENAGA | 271 |
+| 020 | CONCORDIA | 37 |
+| 025 | EL BANCO | 159 |
+| 028 | EL PIÑON | 44 |
+| 030 | EL RETEN | 49 |
+| 031 | FUNDACION | 167 |
+| 040 | GUAMAL | 79 |
+| 042 | NUEVA GRANADA | 52 |
+| 046 | PEDRAZA | 33 |
+| 048 | PIJIÑO DEL CARMEN | 35 |
+| 049 | PIVIJAY | 94 |
+| 052 | PLATO | 131 |
+| 055 | PUEBLOVIEJO | 69 |
+| 058 | REMOLINO | 26 |
+| 060 | SABANAS DE SAN ANGEL | 42 |
+| 067 | SALAMINA | 25 |
+| 070 | SAN SEBASTIAN DE BUENAVISTA | 58 |
+| 073 | SAN ZENON | 32 |
+| 076 | SANTA ANA | 55 |
+| 078 | SANTA BARBARA DE PINTO | 29 |
+| 079 | SITIONUEVO | 65 |
+| 085 | TENERIFE | 40 |
+| 090 | ZAPAYAN | 31 |
+| 095 | ZONA BANANERA (SEVILLA) | 153 |
