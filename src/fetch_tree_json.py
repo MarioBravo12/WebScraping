@@ -10,9 +10,14 @@ eleccion/corporacion:
     python src/fetch_tree_json.py
 """
 import os
+from urllib.parse import urlsplit
+
+from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 
-PORTAL_URL = "https://divulgacione14presidente.registraduria.gov.co/home"
+load_dotenv()
+
+PORTAL_URL = os.environ.get("PORTAL_URL") or "https://divulgacione14presidente.registraduria.gov.co/home"
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "reference_data")
 
 FILES = [
@@ -25,13 +30,16 @@ FILES = [
 
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
+    portal_origin = urlsplit(PORTAL_URL)
+    base_url = f"{portal_origin.scheme}://{portal_origin.netloc}"
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         page = browser.new_page()
         page.goto(PORTAL_URL, wait_until="networkidle")
 
         for rel_path in FILES:
-            url = f"https://divulgacione14presidente.registraduria.gov.co/{rel_path}"
+            url = f"{base_url}/{rel_path}"
             content = page.evaluate(
                 """async (url) => {
                     const res = await fetch(url);
