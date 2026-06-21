@@ -12,7 +12,7 @@ eleccion/corporacion:
 import os
 from playwright.sync_api import sync_playwright
 
-PORTAL_URL = "https://divulgacione14presidente.registraduria.gov.co/home"
+PORTAL_URL = "https://e14segundavueltapresidente.registraduria.gov.co/home"
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "reference_data")
 
 FILES = [
@@ -31,7 +31,7 @@ def main():
         page.goto(PORTAL_URL, wait_until="networkidle")
 
         for rel_path in FILES:
-            url = f"https://divulgacione14presidente.registraduria.gov.co/{rel_path}"
+            url = f"https://e14segundavueltapresidente.registraduria.gov.co/{rel_path}"
             content = page.evaluate(
                 """async (url) => {
                     const res = await fetch(url);

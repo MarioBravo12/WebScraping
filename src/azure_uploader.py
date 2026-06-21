@@ -1,4 +1,5 @@
 import os
+
 from azure.storage.blob import BlobServiceClient, ContentSettings
 
 CHUNK_SIZE = 4 * 1024 * 1024  # 4 MB
@@ -7,7 +8,7 @@ MAX_FILE_SIZE = 100 * 1024 * 1024  # 100 MB
 ALLOWED_EXTENSIONS = {
     ".pdf", ".jpeg", ".jpg", ".png", ".gif", ".webp",
     ".doc", ".docx", ".xls", ".xlsx", ".txt", ".csv", ".zip", ".rar",
-    ".json",  # metadata sidecar de cada PDF descargado
+    ".json",
 }
 
 CONTENT_TYPES = {
@@ -21,7 +22,12 @@ def _client() -> BlobServiceClient:
     return BlobServiceClient.from_connection_string(conn_str)
 
 
-def upload_file(local_path: str, blob_name: str) -> str:
+def upload_file(local_path: str, blob_name: str, container_name: str = None) -> str:
+    """Sube un archivo a Azure Blob Storage y devuelve la URL del blob.
+
+    container_name: nombre del contenedor destino. Si se omite, usa la
+    variable de entorno AZURE_STORAGE_CONTAINER.
+    """
     ext = os.path.splitext(local_path)[1].lower()
     if ext not in ALLOWED_EXTENSIONS:
         raise ValueError(f"Extensión no permitida: {ext}")
@@ -30,7 +36,9 @@ def upload_file(local_path: str, blob_name: str) -> str:
     if size > MAX_FILE_SIZE:
         raise ValueError(f"Archivo excede el límite de 100 MB: {size} bytes")
 
-    container_name = os.environ["AZURE_CONTAINER_NAME"]
+    if container_name is None:
+        container_name = os.environ["AZURE_STORAGE_CONTAINER"]
+
     blob_client = _client().get_blob_client(container=container_name, blob=blob_name)
     content_type = CONTENT_TYPES.get(ext, "application/octet-stream")
 

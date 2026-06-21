@@ -1,0 +1,82 @@
+# Scraper E-14 — docker-compose.yml
+#
+# Cada VM arranca SOLO su servicio usando --profile:
+#
+#   VM 1:  docker compose --profile vm1 up -d
+#   VM 2:  docker compose --profile vm2 up -d
+#   VM 3:  docker compose --profile vm3 up -d
+#   VM 4:  docker compose --profile vm4 up -d
+#
+# Ver logs en tiempo real:
+#   docker compose --profile vm1 logs -f
+#
+# Detener:
+#   docker compose --profile vm1 down
+#
+# Build previo (solo la primera vez o cuando cambia el codigo):
+#   docker compose build
+#
+# ANTES DE ARRANCAR:
+#   - Copia .env.example -> .env y rellena las credenciales
+#   - Crea el directorio de datos: mkdir -p data/downloads
+#
+# Logica de contenedor (hora Colombia):
+#   00:00 - 22:59  ->  actas-e14-scraping-1
+#   23:00 - 23:59  ->  actas-e14-scraping-2
+
+x-scraper: &scraper-base
+  build: .
+  env_file: .env
+  volumes:
+    - ./data:/app/data
+  restart: unless-stopped
+  # Xvfb necesita /dev/shm de tamano suficiente para Chromium
+  shm_size: "2gb"
+
+services:
+
+  # ─── VM 1 — Antioquia, mitad 1 (56 municipios, ~7.904 mesas, ~41 min/iter) ─
+  vm1:
+    <<: *scraper-base
+    profiles: ["vm1"]
+    container_name: e14-vm1
+    command: >
+      src/loop_runner.py
+      --departamento 01
+      --workers 8
+      --machine-id vm1
+      --municipios 001,007,010,016,025,031,034,037,046,052,055,058,064,076,079,082,085,091,109,117,127,130,139,142,168,170,181,184,187,190,191,193,196,199,202,205,206,211,217,220,226,227,232,237,244,250,253,265,270,274,282,289,291,292,295,300
+
+  # ─── VM 2 — Antioquia, mitad 2 (69 municipios, ~7.897 mesas, ~41 min/iter) ─
+  vm2:
+    <<: *scraper-base
+    profiles: ["vm2"]
+    container_name: e14-vm2
+    command: >
+      src/loop_runner.py
+      --departamento 01
+      --workers 8
+      --machine-id vm2
+      --municipios 004,013,019,022,028,035,039,040,043,049,061,062,067,070,073,078,080,088,094,097,100,103,106,112,115,118,121,124,133,136,140,145,148,150,151,154,157,160,163,166,169,172,175,178,192,208,214,218,223,229,230,231,235,238,241,247,256,259,262,268,271,277,280,283,286,290,293,298,301
+
+  # ─── VM 3 — Atlántico, completo (~6.190 mesas, ~30 min/iter) ──────────────
+  vm3:
+    <<: *scraper-base
+    profiles: ["vm3"]
+    container_name: e14-vm3
+    command: >
+      src/loop_runner.py
+      --departamento 03
+      --workers 8
+      --machine-id vm3
+
+  # ─── VM 4 — Magdalena, completo (~3.228 mesas, ~17 min/iter) ─────────────
+  vm4:
+    <<: *scraper-base
+    profiles: ["vm4"]
+    container_name: e14-vm4
+    command: >
+      src/loop_runner.py
+      --departamento 21
+      --workers 8
+      --machine-id vm4
