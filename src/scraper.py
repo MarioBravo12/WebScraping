@@ -17,6 +17,7 @@ import argparse
 import json
 import os
 import re
+from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 from dotenv import load_dotenv
@@ -35,6 +36,22 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 REFERENCE_DIR = os.path.join(os.path.dirname(__file__), "..", "reference_data")
 TREE_PATH = os.path.join(REFERENCE_DIR, "departmentsTree.json")
 DOWNLOADS_DIR = os.path.join(DATA_DIR, "downloads")
+
+
+def _load_corporations():
+    path = os.path.join(REFERENCE_DIR, "allCorporations.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return {
+            edge["node"]["acronym"]: edge["node"]["nameCorporation"]
+            for edge in data["data"]["allCorporations"]["edges"]
+        }
+    except (FileNotFoundError, KeyError):
+        return {}
+
+
+CORPORATIONS = _load_corporations()
 
 
 def load_tree(departamento_code: str):
@@ -98,9 +115,11 @@ def dismiss_blocking_modal(page, log=None, wait_ms=300):
     return clicked_any
 
 
-def download_mesas_for_puesto(page, depto_code, municipio_code, zona_code, puesto_code, max_mesas, log):
+def download_mesas_for_puesto(page, depto_code, depto_name, municipio_code, municipio_name,
+                               zona_code, puesto_code, puesto_name, max_mesas, log):
     """Asume que ya se navego al departamento y se hizo clic en Consultar.
-    Itera las tarjetas 'Mesa N' visibles (con paginacion) y descarga cada PDF."""
+    Itera las tarjetas 'Mesa N' visibles (con paginacion) y descarga cada PDF,
+    junto con un .json de metadata (codigos, nombres, hash original, fecha)."""
     downloaded = []
     seen_mesas = set()
 
@@ -130,7 +149,17 @@ def download_mesas_for_puesto(page, depto_code, municipio_code, zona_code, puest
                     lambda r: "/assets/temis/pdf/" in r.url and r.status == 200, timeout=8000
                 ) as resp_info:
                     download_icon.click()
-                pdf_bytes = resp_info.value.body()
+                response = resp_info.value
+                pdf_bytes = response.body()
+
+                # La URL real tiene el patron:
+                # .../assets/temis/pdf/{depto}/{municipio}/{zona}/{puesto}/{mesa}/{corp}/{hash}.pdf
+                # de ahi sacamos el hash original y el codigo de corporacion
+                # sin tener que adivinarlos.
+                url_path = urlsplit(response.url).path
+                path_parts = url_path.rstrip("/").split("/")
+                corp_code = path_parts[-2] if len(path_parts) >= 2 else None
+                hash_filename = path_parts[-1] if path_parts else None
 
                 mesa_num = re.sub(r"\D", "", mesa_label) or "0"
                 fname = f"{depto_code}_{municipio_code}_{zona_code}_{puesto_code}_{mesa_num.zfill(3)}.pdf"
@@ -138,8 +167,28 @@ def download_mesas_for_puesto(page, depto_code, municipio_code, zona_code, puest
                 local_path = os.path.join(DOWNLOADS_DIR, fname)
                 with open(local_path, "wb") as f:
                     f.write(pdf_bytes)
+
+                metadata = {
+                    "departamento_codigo": depto_code,
+                    "departamento_nombre": depto_name,
+                    "municipio_codigo": municipio_code,
+                    "municipio_nombre": municipio_name,
+                    "zona_codigo": zona_code,
+                    "puesto_codigo": puesto_code,
+                    "puesto_nombre": puesto_name,
+                    "mesa_numero": mesa_num,
+                    "corporacion_acronimo": corp_code,
+                    "corporacion_nombre": CORPORATIONS.get(corp_code),
+                    "hash_archivo_original": hash_filename,
+                    "tamano_bytes": len(pdf_bytes),
+                    "fecha_descarga_utc": datetime.now(timezone.utc).isoformat(),
+                }
+                metadata_path = os.path.splitext(local_path)[0] + ".json"
+                with open(metadata_path, "w", encoding="utf-8") as f:
+                    json.dump(metadata, f, ensure_ascii=False, indent=2)
+
                 log(f"  Descargado {mesa_label} -> {fname} ({len(pdf_bytes)} bytes)")
-                downloaded.append((mesa_label, local_path))
+                downloaded.append({"mesa": mesa_label, "local_path": local_path, "metadata_path": metadata_path})
             except Exception as e:
                 log(f"  AVISO: no se pudo interceptar el PDF de {mesa_label}: {e!r}")
 
@@ -177,12 +226,15 @@ def load_checkpoint(departamento_code: str, suffix: str = ""):
 
 def flatten_puestos(node):
     """Convierte el arbol Municipio->Zona->Puesto en una lista plana
-    [(municipio_code, zona_code, puesto_code, stand_name), ...]."""
+    [(municipio_code, municipio_name, zona_code, puesto_code, stand_name), ...]."""
     flat = []
     for m in node["municipalities"]:
         for z in m["zones"]:
             for s in z["stands"]:
-                flat.append((m["municipalityCode"], z["idZoneCode"], s["standCode"], s["standName"]))
+                flat.append((
+                    m["municipalityCode"], m.get("municipalityName", ""),
+                    z["idZoneCode"], s["standCode"], s["standName"],
+                ))
     return flat
 
 
@@ -228,7 +280,7 @@ def run(departamento_code: str, max_puestos: int, max_mesas: int, upload: bool, 
         page.goto(department_url, wait_until="networkidle")
         page.wait_for_selector("app-consult app-custom-select", timeout=15000)
 
-        for municipio_code, zona_code, puesto_code, stand_name in puestos:
+        for municipio_code, municipio_name, zona_code, puesto_code, stand_name in puestos:
             if puestos_procesados >= max_puestos:
                 break
             puesto_key = f"{municipio_code}|{zona_code}|{puesto_code}"
@@ -260,18 +312,25 @@ def run(departamento_code: str, max_puestos: int, max_mesas: int, upload: bool, 
 
                 log(f"[{puestos_procesados + 1}/{total_puestos}] Puesto {puesto_key} - {stand_name}")
                 descargados = download_mesas_for_puesto(
-                    page, departamento_code, municipio_code, zona_code, puesto_code, max_mesas, log
+                    page, departamento_code, node["departmentName"], municipio_code, municipio_name,
+                    zona_code, puesto_code, stand_name, max_mesas, log
                 )
 
-                for mesa_label, local_path in descargados:
+                for item in descargados:
                     blob_url = None
+                    metadata_blob_url = None
                     if upload:
-                        blob_name = f"e14/{departamento_code}/{municipio_code}/{zona_code}/{puesto_code}/{os.path.basename(local_path)}"
-                        blob_url = upload_file(local_path, blob_name)
+                        prefix = f"e14/{departamento_code}/{municipio_code}/{zona_code}/{puesto_code}"
+                        blob_url = upload_file(item["local_path"], f"{prefix}/{os.path.basename(item['local_path'])}")
+                        metadata_blob_url = upload_file(
+                            item["metadata_path"], f"{prefix}/{os.path.basename(item['metadata_path'])}"
+                        )
                     resultados.append({
-                        "mesa": mesa_label,
-                        "local_path": local_path,
+                        "mesa": item["mesa"],
+                        "local_path": item["local_path"],
+                        "metadata_path": item["metadata_path"],
                         "blob_url": blob_url,
+                        "metadata_blob_url": metadata_blob_url,
                     })
 
                 append_checkpoint(checkpoint_path, done_puestos, puesto_key)

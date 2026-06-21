@@ -7,6 +7,12 @@ MAX_FILE_SIZE = 100 * 1024 * 1024  # 100 MB
 ALLOWED_EXTENSIONS = {
     ".pdf", ".jpeg", ".jpg", ".png", ".gif", ".webp",
     ".doc", ".docx", ".xls", ".xlsx", ".txt", ".csv", ".zip", ".rar",
+    ".json",  # metadata sidecar de cada PDF descargado
+}
+
+CONTENT_TYPES = {
+    ".pdf": "application/pdf",
+    ".json": "application/json",
 }
 
 
@@ -26,13 +32,14 @@ def upload_file(local_path: str, blob_name: str) -> str:
 
     container_name = os.environ["AZURE_CONTAINER_NAME"]
     blob_client = _client().get_blob_client(container=container_name, blob=blob_name)
+    content_type = CONTENT_TYPES.get(ext, "application/octet-stream")
 
     with open(local_path, "rb") as f:
         blob_client.upload_blob(
             f,
             overwrite=True,
             max_concurrency=10,
-            content_settings=ContentSettings(content_type="application/pdf"),
+            content_settings=ContentSettings(content_type=content_type),
         )
 
     return blob_client.url

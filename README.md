@@ -48,9 +48,30 @@ python src/scraper.py --departamento 01 --max-puestos 99999 --max-mesas 99999 --
 ```
 
 - `--departamento`: código DIVIPOLA (01=Antioquia, 03=Atlántico, 21=Magdalena — ver `reference_data/allDepartments.json`)
-- `--upload`: sube cada PDF a Azure al terminar de descargarlo (si se omite, solo queda local en `data/downloads/`)
+- `--upload`: sube cada PDF (y su metadata, ver abajo) a Azure al terminar de descargarlo (si se omite, solo queda local en `data/downloads/`)
 - `--municipio --zona --puesto`: apunta a un puesto específico (útil para pruebas)
 - `--no-resume`: ignora el checkpoint y vuelve a procesar todo
+
+### Metadata de cada mesa
+
+Por cada PDF descargado (`{depto}_{municipio}_{zona}_{puesto}_{mesa}.pdf`) se
+genera un `.json` hermano (mismo nombre, misma carpeta en Azure) con:
+
+```json
+{
+  "departamento_codigo": "21", "departamento_nombre": "MAGDALENA",
+  "municipio_codigo": "008", "municipio_nombre": "ALGARROBO",
+  "zona_codigo": "99", "puesto_codigo": "10", "puesto_nombre": "BELLAVISTA",
+  "mesa_numero": "1", "corporacion_acronimo": "PRE", "corporacion_nombre": "PRESIDENTE",
+  "hash_archivo_original": "769b9443...eb596.pdf",
+  "tamano_bytes": 100340,
+  "fecha_descarga_utc": "2026-06-21T17:23:10.859936+00:00"
+}
+```
+
+`hash_archivo_original` es el nombre de archivo que la Registraduría le asignó
+al PDF en el portal (útil para verificar integridad o detectar duplicados).
+Con `--upload`, este `.json` se sube a Azure junto al PDF en la misma ruta.
 
 ### Paralelo (recomendado para correr departamentos completos)
 
@@ -206,8 +227,9 @@ export DISPLAY=:99
 
 - RAM: cada instancia de Chromium headed consume aprox. 0.5–1 GB; con 8
   workers + sistema operativo, 16 GB da margen cómodo.
-- Disco: ~25,200 mesas totales (3 departamentos) × ~95 KB ≈ 2.5 GB de PDFs,
-  más binarios de Chromium (~500 MB) y dependencias de Python.
+- Disco: ~25,200 mesas totales (3 departamentos) × ~95 KB ≈ 2.5 GB de PDFs
+  (el `.json` de metadata por mesa pesa <1 KB, despreciable), más binarios de
+  Chromium (~500 MB) y dependencias de Python.
 
 ### Software
 
