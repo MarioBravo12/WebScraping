@@ -43,3 +43,26 @@ def upload_file(local_path: str, blob_name: str) -> str:
         )
 
     return blob_client.url
+
+
+def upload_bytes(data: bytes, blob_name: str) -> str:
+    """Sube datos directo desde memoria, sin pasar por disco local."""
+    ext = os.path.splitext(blob_name)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise ValueError(f"Extensión no permitida: {ext}")
+
+    if len(data) > MAX_FILE_SIZE:
+        raise ValueError(f"Archivo excede el límite de 100 MB: {len(data)} bytes")
+
+    container_name = os.environ["AZURE_CONTAINER_NAME"]
+    blob_client = _client().get_blob_client(container=container_name, blob=blob_name)
+    content_type = CONTENT_TYPES.get(ext, "application/octet-stream")
+
+    blob_client.upload_blob(
+        data,
+        overwrite=True,
+        max_concurrency=10,
+        content_settings=ContentSettings(content_type=content_type),
+    )
+
+    return blob_client.url

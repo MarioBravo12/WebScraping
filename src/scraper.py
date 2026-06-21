@@ -23,7 +23,7 @@ from urllib.parse import urlsplit
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 
-from azure_uploader import upload_file
+from azure_uploader import upload_bytes
 
 load_dotenv()
 
@@ -116,22 +116,35 @@ def dismiss_blocking_modal(page, log=None, wait_ms=300):
 
 
 def download_mesas_for_puesto(page, depto_code, depto_name, municipio_code, municipio_name,
-                               zona_code, puesto_code, puesto_name, max_mesas, log):
+                               zona_code, puesto_code, puesto_name, max_mesas, log,
+                               checkpoint_path, done_mesas, upload):
     """Asume que ya se navego al departamento y se hizo clic en Consultar.
     Itera las tarjetas 'Mesa N' visibles (con paginacion) y descarga cada PDF,
-    junto con un .json de metadata (codigos, nombres, hash original, fecha)."""
-    downloaded = []
+    junto con un .json de metadata (codigos, nombres, hash original, fecha).
+
+    Cada mesa se sube (si upload=True) y se marca en el checkpoint INMEDIATAMENTE
+    al terminar, no al final del puesto -- asi una corrida interrumpida a medio
+    puesto no pierde el progreso de las mesas que ya alcanzo a completar.
+
+    Las mesas que ya estan en `done_mesas` (de una corrida anterior) se saltan
+    sin volver a descargarlas. Esto es clave porque en una eleccion en curso
+    los resultados se publican progresivamente: un puesto puede tener solo
+    algunas mesas disponibles hoy y el resto mañana -- correr el scraper de
+    nuevo debe completar solo lo que falta, no repetir ni perder lo ya hecho."""
+    puesto_prefix = f"{municipio_code}|{zona_code}|{puesto_code}|"
+    already_done = {k for k in done_mesas if k.startswith(puesto_prefix)}
+    newly_downloaded = []
     seen_mesas = set()
 
     page_num = 1
-    while len(downloaded) < max_mesas:
+    while len(already_done) + len(newly_downloaded) < max_mesas:
         cards = page.query_selector_all("app-consult .item-table.isAvailable")
         if not cards:
             break
 
         progressed = False
         for card in cards:
-            if len(downloaded) >= max_mesas:
+            if len(already_done) + len(newly_downloaded) >= max_mesas:
                 break
             title_el = card.query_selector("h3")
             mesa_label = title_el.inner_text().strip() if title_el else ""
@@ -139,6 +152,11 @@ def download_mesas_for_puesto(page, depto_code, depto_name, municipio_code, muni
                 continue
             seen_mesas.add(mesa_label)
             progressed = True
+
+            mesa_num = re.sub(r"\D", "", mesa_label) or "0"
+            mesa_key = f"{puesto_prefix}{mesa_num}"
+            if mesa_key in already_done:
+                continue  # ya se descargo (y subio) en una corrida anterior
 
             # Usamos el icono de "Descargar" (no "Ver"): dispara la misma peticion
             # del PDF real pero sin abrir el visor pesado de pdf.js, y solo deja
@@ -161,12 +179,8 @@ def download_mesas_for_puesto(page, depto_code, depto_name, municipio_code, muni
                 corp_code = path_parts[-2] if len(path_parts) >= 2 else None
                 hash_filename = path_parts[-1] if path_parts else None
 
-                mesa_num = re.sub(r"\D", "", mesa_label) or "0"
                 fname = f"{depto_code}_{municipio_code}_{zona_code}_{puesto_code}_{mesa_num.zfill(3)}.pdf"
-                os.makedirs(DOWNLOADS_DIR, exist_ok=True)
-                local_path = os.path.join(DOWNLOADS_DIR, fname)
-                with open(local_path, "wb") as f:
-                    f.write(pdf_bytes)
+                json_fname = os.path.splitext(fname)[0] + ".json"
 
                 metadata = {
                     "departamento_codigo": depto_code,
@@ -183,12 +197,36 @@ def download_mesas_for_puesto(page, depto_code, depto_name, municipio_code, muni
                     "tamano_bytes": len(pdf_bytes),
                     "fecha_descarga_utc": datetime.now(timezone.utc).isoformat(),
                 }
-                metadata_path = os.path.splitext(local_path)[0] + ".json"
-                with open(metadata_path, "w", encoding="utf-8") as f:
-                    json.dump(metadata, f, ensure_ascii=False, indent=2)
+                metadata_bytes = json.dumps(metadata, ensure_ascii=False, indent=2).encode("utf-8")
 
-                log(f"  Descargado {mesa_label} -> {fname} ({len(pdf_bytes)} bytes)")
-                downloaded.append({"mesa": mesa_label, "local_path": local_path, "metadata_path": metadata_path})
+                local_path = None
+                metadata_path = None
+                blob_url = None
+                metadata_blob_url = None
+
+                if upload:
+                    # Se sube directo desde memoria, sin tocar el disco local.
+                    prefix = f"e14/{depto_code}/{municipio_code}/{zona_code}/{puesto_code}"
+                    blob_url = upload_bytes(pdf_bytes, f"{prefix}/{fname}")
+                    metadata_blob_url = upload_bytes(metadata_bytes, f"{prefix}/{json_fname}")
+                else:
+                    # Sin --upload no hay donde mas dejarlo: se guarda local para poder inspeccionarlo.
+                    os.makedirs(DOWNLOADS_DIR, exist_ok=True)
+                    local_path = os.path.join(DOWNLOADS_DIR, fname)
+                    with open(local_path, "wb") as f:
+                        f.write(pdf_bytes)
+                    metadata_path = os.path.join(DOWNLOADS_DIR, json_fname)
+                    with open(metadata_path, "wb") as f:
+                        f.write(metadata_bytes)
+
+                log(f"  Descargado {mesa_label} -> {fname} ({len(pdf_bytes)} bytes)"
+                    + (f" -> {blob_url}" if blob_url else ""))
+                newly_downloaded.append({
+                    "mesa": mesa_label, "local_path": local_path, "metadata_path": metadata_path,
+                    "blob_url": blob_url, "metadata_blob_url": metadata_blob_url,
+                })
+                append_checkpoint(checkpoint_path, done_mesas, mesa_key)
+                already_done.add(mesa_key)
             except Exception as e:
                 log(f"  AVISO: no se pudo interceptar el PDF de {mesa_label}: {e!r}")
 
@@ -198,7 +236,7 @@ def download_mesas_for_puesto(page, depto_code, depto_name, municipio_code, muni
             break
 
         # Intentar pasar a la siguiente pagina de mesas (numero actual + 1)
-        if len(downloaded) >= max_mesas:
+        if len(already_done) + len(newly_downloaded) >= max_mesas:
             break
         target_page_label = f"{page_num + 1:02d}"
         next_page_el = None
@@ -213,7 +251,7 @@ def download_mesas_for_puesto(page, depto_code, depto_name, municipio_code, muni
         else:
             break
 
-    return downloaded
+    return newly_downloaded
 
 
 def load_checkpoint(departamento_code: str, suffix: str = ""):
@@ -226,14 +264,17 @@ def load_checkpoint(departamento_code: str, suffix: str = ""):
 
 def flatten_puestos(node):
     """Convierte el arbol Municipio->Zona->Puesto en una lista plana
-    [(municipio_code, municipio_name, zona_code, puesto_code, stand_name), ...]."""
+    [(municipio_code, municipio_name, zona_code, puesto_code, stand_name, count_table), ...].
+    count_table es el total de mesas que ese puesto DEBERIA tener segun el
+    arbol oficial -- se usa para saber si ya esta completo o aun faltan mesas
+    por publicarse."""
     flat = []
     for m in node["municipalities"]:
         for z in m["zones"]:
             for s in z["stands"]:
                 flat.append((
                     m["municipalityCode"], m.get("municipalityName", ""),
-                    z["idZoneCode"], s["standCode"], s["standName"],
+                    z["idZoneCode"], s["standCode"], s["standName"], s["countTable"],
                 ))
     return flat
 
@@ -248,9 +289,13 @@ def run(departamento_code: str, max_puestos: int, max_mesas: int, upload: bool, 
         resume=True, puestos_subset=None, checkpoint_suffix="", headless=False):
     """target: tupla opcional (municipio_code, zona_code, puesto_code) para apuntar
     a un puesto especifico en lugar de tomar los primeros que aparezcan en el arbol.
-    resume: si True, se salta puestos ya completados segun el checkpoint local.
-    puestos_subset: lista opcional de tuplas (municipio, zona, puesto, nombre) a procesar
-    en lugar de todo el departamento -- usado por el runner paralelo para repartir trabajo.
+    resume: si True, se salta mesas ya descargadas segun el checkpoint local (esto
+    es por MESA, no por puesto -- si un puesto solo tenia algunas mesas publicadas
+    en una corrida anterior, la siguiente corrida completa las que falten sin
+    repetir las que ya estan).
+    puestos_subset: lista opcional de tuplas (municipio, zona, puesto, nombre, count_table)
+    a procesar en lugar de todo el departamento -- usado por el runner paralelo
+    para repartir trabajo.
     checkpoint_suffix: sufijo del archivo de checkpoint, para que cada worker en paralelo
     tenga su propio archivo y no haya colisiones de escritura."""
     node = load_tree(departamento_code)
@@ -259,11 +304,12 @@ def run(departamento_code: str, max_puestos: int, max_mesas: int, upload: bool, 
     puestos = puestos_subset if puestos_subset is not None else flatten_puestos(node)
     total_puestos = len(puestos)
 
-    checkpoint_path, done_puestos = load_checkpoint(departamento_code, checkpoint_suffix)
-    if resume and done_puestos:
-        log(f"Reanudando: {len(done_puestos)} puestos ya completados se omitiran.")
+    checkpoint_path, done_mesas = load_checkpoint(departamento_code, checkpoint_suffix)
+    if resume and done_mesas:
+        log(f"Reanudando: {len(done_mesas)} mesas ya descargadas se omitiran.")
 
     puestos_procesados = 0
+    puestos_saltados_completos = 0
     errores = 0
     resultados = []
 
@@ -277,17 +323,31 @@ def run(departamento_code: str, max_puestos: int, max_mesas: int, upload: bool, 
         # el enlace de la portada: ese enlace puede no estar visible si el
         # departamento queda en otra pagina de la paginacion de la portada
         # (ej. MAGDALENA no aparece en la primera pagina, alfabeticamente).
-        page.goto(department_url, wait_until="networkidle")
-        page.wait_for_selector("app-consult app-custom-select", timeout=15000)
+        # Reintenta unas veces: un cold-start de Chromium/Akamai a veces tarda
+        # mas de lo esperado, sobre todo en modo continuo con varios lanzamientos
+        # seguidos del navegador.
+        for intento in range(3):
+            try:
+                page.goto(department_url, wait_until="networkidle")
+                page.wait_for_selector("app-consult app-custom-select", timeout=20000)
+                break
+            except Exception as e:
+                if intento == 2:
+                    raise
+                log(f"AVISO: fallo la navegacion inicial (intento {intento + 1}/3): {e!r}. Reintentando...")
 
-        for municipio_code, municipio_name, zona_code, puesto_code, stand_name in puestos:
+        for municipio_code, municipio_name, zona_code, puesto_code, stand_name, count_table in puestos:
             if puestos_procesados >= max_puestos:
                 break
             puesto_key = f"{municipio_code}|{zona_code}|{puesto_code}"
 
             if target and (municipio_code, zona_code, puesto_code) != target:
                 continue
-            if resume and puesto_key in done_puestos:
+
+            expected_total = min(max_mesas, count_table)
+            done_count = sum(1 for k in done_mesas if k.startswith(f"{puesto_key}|"))
+            if resume and done_count >= expected_total and expected_total > 0:
+                puestos_saltados_completos += 1
                 continue
 
             try:
@@ -310,30 +370,14 @@ def run(departamento_code: str, max_puestos: int, max_mesas: int, upload: bool, 
                 page.click("app-consult .consult-btn button")
                 page.wait_for_timeout(800)
 
-                log(f"[{puestos_procesados + 1}/{total_puestos}] Puesto {puesto_key} - {stand_name}")
-                descargados = download_mesas_for_puesto(
+                log(f"[{puestos_procesados + 1}/{total_puestos}] Puesto {puesto_key} - {stand_name} "
+                    f"({done_count}/{count_table} ya descargadas)")
+                nuevas = download_mesas_for_puesto(
                     page, departamento_code, node["departmentName"], municipio_code, municipio_name,
-                    zona_code, puesto_code, stand_name, max_mesas, log
+                    zona_code, puesto_code, stand_name, max_mesas, log,
+                    checkpoint_path, done_mesas, upload,
                 )
-
-                for item in descargados:
-                    blob_url = None
-                    metadata_blob_url = None
-                    if upload:
-                        prefix = f"e14/{departamento_code}/{municipio_code}/{zona_code}/{puesto_code}"
-                        blob_url = upload_file(item["local_path"], f"{prefix}/{os.path.basename(item['local_path'])}")
-                        metadata_blob_url = upload_file(
-                            item["metadata_path"], f"{prefix}/{os.path.basename(item['metadata_path'])}"
-                        )
-                    resultados.append({
-                        "mesa": item["mesa"],
-                        "local_path": item["local_path"],
-                        "metadata_path": item["metadata_path"],
-                        "blob_url": blob_url,
-                        "metadata_blob_url": metadata_blob_url,
-                    })
-
-                append_checkpoint(checkpoint_path, done_puestos, puesto_key)
+                resultados.extend(nuevas)
 
             except Exception as e:
                 errores += 1
@@ -348,7 +392,9 @@ def run(departamento_code: str, max_puestos: int, max_mesas: int, upload: bool, 
 
         browser.close()
 
-    log(f"\nTotal mesas descargadas: {len(resultados)} | Puestos con error (saltados): {errores}")
+    log(f"\nTotal mesas nuevas descargadas: {len(resultados)} | "
+        f"Puestos ya completos (saltados): {puestos_saltados_completos} | "
+        f"Puestos con error: {errores}")
     return resultados
 
 

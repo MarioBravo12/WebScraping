@@ -48,9 +48,28 @@ python src/scraper.py --departamento 01 --max-puestos 99999 --max-mesas 99999 --
 ```
 
 - `--departamento`: código DIVIPOLA (01=Antioquia, 03=Atlántico, 21=Magdalena — ver `reference_data/allDepartments.json`)
-- `--upload`: sube cada PDF (y su metadata, ver abajo) a Azure al terminar de descargarlo (si se omite, solo queda local en `data/downloads/`)
+- `--upload`: sube cada PDF (y su metadata, ver abajo) **directo desde memoria a Azure**, sin escribir nada en disco local. Sin `--upload`, sí se guarda en `data/downloads/` (modo de prueba/depuración, sin Azure configurado)
 - `--municipio --zona --puesto`: apunta a un puesto específico (útil para pruebas)
-- `--no-resume`: ignora el checkpoint y vuelve a procesar todo
+- `--no-resume`: ignora el checkpoint y vuelve a procesar todo (re-sube todo de nuevo)
+
+### Re-correr a medida que se publican más resultados
+
+El checkpoint es **por mesa individual**, no por puesto. Esto es importante en
+una elección en curso: si un puesto tiene 50 mesas pero el portal solo ha
+publicado 30 cuando corres el scraper, esas 30 se descargan/suben y se marcan
+como hechas — las otras 20 simplemente no aparecen todavía en el portal, así
+que no se procesan. Si vuelves a correr el **mismo comando** más tarde (cuando
+la Registraduría publique más), el scraper:
+
+- **No vuelve a descargar ni subir** las 30 que ya estaban completas.
+- **Detecta y descarga solo las mesas nuevas** que ya aparezcan disponibles.
+- Si un puesto ya está 100% completo, ni siquiera navega a seleccionarlo —
+  lo salta directo, ahorrando tiempo.
+
+Por eso para una elección en curso (como ahora, segunda vuelta sin resultados
+publicados aún) la forma de operar es: correr el mismo comando varias veces a
+lo largo del día/noche conforme se van publicando los resultados, en vez de
+intentar correrlo una sola vez al final.
 
 ### Metadata de cada mesa
 
@@ -83,6 +102,25 @@ Reparte los puestos del departamento entre N procesos, cada uno con su propio
 navegador y su propio checkpoint (`data/checkpoint_{depto}_w{N}.json`, o
 `data/checkpoint_{depto}_{machine-id}_w{N}.json` si se usa `--machine-id`),
 para poder reanudar sin colisiones si se interrumpe.
+
+#### Modo continuo (recomendado durante una elección en curso)
+
+Sin resultados publicados al 100% (como ahora, segunda vuelta), agrega
+`--poll-minutos`: el proceso se queda corriendo, reintenta cada N minutos, y
+termina solo cuando se complete el 100% de las mesas esperadas o se agote
+`--max-poll-horas` (default 12h):
+
+```bash
+python src/scraper_parallel.py --departamento 01 --workers 8 --upload \
+  --poll-minutos 10 --max-poll-horas 12
+```
+
+Cada pasada solo descarga las mesas que falten (gracias al checkpoint por
+mesa) — no repite trabajo ya hecho. Si se agota `--max-poll-horas` sin llegar
+al 100%, imprime cuántas mesas quedaron pendientes (probablemente porque la
+Registraduría aún no las publica) y hay que volver a correr el comando más
+tarde. Sin `--poll-minutos`, el comportamiento es el de siempre: una sola
+pasada y termina.
 
 Comandos para los 3 departamentos del piloto:
 
@@ -227,9 +265,10 @@ export DISPLAY=:99
 
 - RAM: cada instancia de Chromium headed consume aprox. 0.5–1 GB; con 8
   workers + sistema operativo, 16 GB da margen cómodo.
-- Disco: ~25,200 mesas totales (3 departamentos) × ~95 KB ≈ 2.5 GB de PDFs
-  (el `.json` de metadata por mesa pesa <1 KB, despreciable), más binarios de
-  Chromium (~500 MB) y dependencias de Python.
+- Disco: con `--upload` (modo producción) los PDFs **no se guardan en disco**
+  — se suben directo desde memoria a Azure. El espacio libre es solo para
+  binarios de Chromium (~500 MB) y dependencias de Python. Sin `--upload`
+  (modo de prueba), contar ~25,200 mesas × ~95 KB ≈ 2.5 GB.
 
 ### Software
 
