@@ -179,8 +179,12 @@ def download_mesas_for_puesto(page, depto_code, depto_name, municipio_code, muni
                 corp_code = path_parts[-2] if len(path_parts) >= 2 else None
                 hash_filename = path_parts[-1] if path_parts else None
 
-                fname = f"{depto_code}_{municipio_code}_{zona_code}_{puesto_code}_{mesa_num.zfill(3)}.pdf"
-                json_fname = os.path.splitext(fname)[0] + ".json"
+                # Estructura: {departamento}/{municipio}/{zona}/{puesto}/{mesa}/acta.pdf
+                # La mesa es su propia carpeta, asi que el archivo no necesita
+                # llevar los codigos en el nombre -- el path ya los tiene.
+                ruta = f"{depto_code}/{municipio_code}/{zona_code}/{puesto_code}/{mesa_num.zfill(3)}"
+                fname = "acta.pdf"
+                json_fname = "metadata.json"
 
                 metadata = {
                     "departamento_codigo": depto_code,
@@ -206,20 +210,21 @@ def download_mesas_for_puesto(page, depto_code, depto_name, municipio_code, muni
 
                 if upload:
                     # Se sube directo desde memoria, sin tocar el disco local.
-                    prefix = f"e14/{depto_code}/{municipio_code}/{zona_code}/{puesto_code}"
-                    blob_url = upload_bytes(pdf_bytes, f"{prefix}/{fname}")
-                    metadata_blob_url = upload_bytes(metadata_bytes, f"{prefix}/{json_fname}")
+                    blob_url = upload_bytes(pdf_bytes, f"{ruta}/{fname}")
+                    metadata_blob_url = upload_bytes(metadata_bytes, f"{ruta}/{json_fname}")
                 else:
-                    # Sin --upload no hay donde mas dejarlo: se guarda local para poder inspeccionarlo.
-                    os.makedirs(DOWNLOADS_DIR, exist_ok=True)
-                    local_path = os.path.join(DOWNLOADS_DIR, fname)
+                    # Sin --upload no hay donde mas dejarlo: se guarda local (misma
+                    # estructura de carpetas) para poder inspeccionarlo.
+                    mesa_dir = os.path.join(DOWNLOADS_DIR, ruta)
+                    os.makedirs(mesa_dir, exist_ok=True)
+                    local_path = os.path.join(mesa_dir, fname)
                     with open(local_path, "wb") as f:
                         f.write(pdf_bytes)
-                    metadata_path = os.path.join(DOWNLOADS_DIR, json_fname)
+                    metadata_path = os.path.join(mesa_dir, json_fname)
                     with open(metadata_path, "wb") as f:
                         f.write(metadata_bytes)
 
-                log(f"  Descargado {mesa_label} -> {fname} ({len(pdf_bytes)} bytes)"
+                log(f"  Descargado {mesa_label} -> {ruta}/{fname} ({len(pdf_bytes)} bytes)"
                     + (f" -> {blob_url}" if blob_url else ""))
                 newly_downloaded.append({
                     "mesa": mesa_label, "local_path": local_path, "metadata_path": metadata_path,
